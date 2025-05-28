@@ -1,0 +1,42 @@
+// PixelArtToon.usf - custom toon shading for pixel-art style
+
+#include "Common.ush"
+
+/**
+ * Performs N-band toon shading with adjustable band edges and specular.
+ * @param Normal     Surface normal in world space
+ * @param LightDir   Directional light vector (normalized)
+ * @param ViewDir    View direction vector (normalized)
+ * @param DiffuseColor Base color (albedo)
+ * @param Ramp       1D texture for custom ramp lookup (optional)
+ * @param BandEdges  Float4 where each component represents a band threshold
+ * @param SpecPower  Specular exponent
+ * @param SpecIntensity Specular scale
+ */
+float3 PixelArtToon(
+    float3 Normal,
+    float3 LightDir,
+    float3 ViewDir,
+    float3 DiffuseColor,
+    Texture2D Ramp,
+    float4 BandEdges,
+    float SpecPower,
+    float SpecIntensity)
+{
+    float NdotL = saturate(dot(Normal, LightDir));
+
+    // Evaluate 4-band lighting based on thresholds in BandEdges
+    float band = 0.0;
+    band += step(BandEdges.x, NdotL);
+    band += step(BandEdges.y, NdotL);
+    band += step(BandEdges.z, NdotL);
+    band += step(BandEdges.w, NdotL);
+    float rampU = band / 4.0;
+
+    float3 rampColor = Ramp.SampleLevel(DefaultSampler, float2(rampU, 0.5), 0).rgb;
+
+    float3 reflected = reflect(-LightDir, Normal);
+    float spec = pow(saturate(dot(reflected, ViewDir)), SpecPower) * SpecIntensity;
+
+    return DiffuseColor * rampColor + spec;
+}
