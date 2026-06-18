@@ -1,0 +1,20 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Blender"
+  },
+  "nodes": [
+    {
+      "name": "Static_Floor",
+      "translation": [0.0, 0.0, 0.0]
+    },
+    {
+      "name": "Static_Wall",
+      "translation": [0.0, 5.0, -10.0]
+    },
+    {
+      "name": "Spawn_Target_A",
+      "translation": [2.0, 1.5, -5.0]
+    }
+  ]
+}
