@@ -5,6 +5,7 @@
 #include <wrl/client.h>
 #include <vector>
 #include "PipelineState.h"
+#include "ConstantBuffer.h" // For the ConstantBuffer struct used by UpdateConstantBuffer()
 #include "../Platform/OpenXRManager.h" // For XrView, XrSession, XrSwapchain, XrSwapchainCreateInfo
 
 // Forward declarations
@@ -64,6 +65,10 @@ private:
     D3D12_INDEX_BUFFER_VIEW m_IndexBufferView = {};
 
     PipelineState m_PipelineState;
+
+    // Per-frame constant buffer (stereo view/projection + model matrices).
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_ConstantBuffer;
+    void* m_CbMappedData = nullptr;
 
     // Synchronization
     HANDLE m_FenceEvent;

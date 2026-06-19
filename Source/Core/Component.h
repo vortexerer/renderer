@@ -11,5 +11,5 @@ public:
     virtual ~Component() = default;
 
     virtual void Start() {}
-    virtual void Update(float deltaTime) {}
+    virtual void Update(float /*deltaTime*/) {}
 };

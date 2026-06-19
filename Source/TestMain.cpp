@@ -458,6 +458,7 @@ void RunUnitTests() {
 
     float dot_res = v1.Dot(v2);
     assert(std::abs(dot_res - 32.0f) < 1e-5f);
+    (void)dot_res; // referenced only inside assert(), which is elided in NDEBUG builds
 
     Vector3 cross_res = v1.Cross(v2);
     assert(cross_res == Vector3(-3.0f, 6.0f, -3.0f));
@@ -481,6 +482,7 @@ void RunUnitTests() {
     Matrix4x4 scale = Matrix4x4::Scaling(1.0f, 2.0f, 3.0f);
     float normal_m[3][3];
     assert(scale.GetNormalMatrix(normal_m));
+    (void)normal_m; // referenced only inside assert(), which is elided in NDEBUG builds
     assert(std::abs(normal_m[0][0] - 1.0f) < 1e-5f);
     assert(std::abs(normal_m[1][1] - 0.5f) < 1e-5f);
     assert(std::abs(normal_m[2][2] - 0.333333f) < 1e-5f);
@@ -525,6 +527,7 @@ void RunUnitTests() {
     timer.Tick();
     float d1 = timer.GetDeltaTime();
     assert(d1 >= 0.0f);
+    (void)d1; // referenced only inside assert(), which is elided in NDEBUG builds
 
     timer.Stop();
     timer.Tick();

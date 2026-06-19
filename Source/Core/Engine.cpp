@@ -47,7 +47,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow) {
 
 void Engine::Run() {
     m_Timer.Tick();
-    double lastTime = m_Timer.GetTimeInSeconds();
+    double lastTime = m_Timer.GetTotalTime();
 
     while (m_Window.IsRunning()) {
         m_Window.PollOSMessages();
@@ -59,7 +59,7 @@ void Engine::Run() {
             m_XRManager.BeginFrame();
 
             m_Timer.Tick();
-            double currentTime = m_Timer.GetTimeInSeconds();
+            double currentTime = m_Timer.GetTotalTime();
             double frameTime = currentTime - lastTime;
             lastTime = currentTime;
 
@@ -97,7 +97,7 @@ void Engine::Run() {
             m_XRManager.EndFrame(frameState.predictedDisplayTime, views);
         } else {
             m_Timer.Tick();
-            double currentTime = m_Timer.GetTimeInSeconds();
+            double currentTime = m_Timer.GetTotalTime();
             double frameTime = currentTime - lastTime;
             lastTime = currentTime;
 
