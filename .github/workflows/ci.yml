@@ -1,0 +1,88 @@
+name: CI
+
+# Builds and tests the DSHS VR game engine on every push / PR.
+#
+#  * linux-core  : builds the cross-platform engine core (math, physics, audio
+#                  DSP, glTF, UI, game loop) and runs the full E2E + meta
+#                  verification suite against the real C++ binary. This is the
+#                  authoritative, fast green signal.
+#  * windows-full: compiles the complete native VR layer (DirectX 12 + OpenXR +
+#                  WASAPI + Win32) that is gated behind `#ifdef _WIN32` and can
+#                  only be built on Windows. OpenXR comes from vcpkg. The
+#                  resulting VREngine.exe is then driven through the same E2E
+#                  suite to confirm the native build is functionally correct.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-core:
+    name: Linux core build + E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          cmake --version
+          g++ --version
+
+      - name: Configure (cross-platform core)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)"
+
+      - name: Internal C++ unit tests
+        run: ./build/VREngine
+
+      - name: E2E suite vs real binary (expect 17/17)
+        run: python3 Tests/run_tests.py --engine-path ./build/VREngine
+
+      - name: Meta-verification (test-suite sensitivity)
+        run: python3 Tests/run_tests.py --verify-suite
+
+  windows-full:
+    name: Windows full VR build (DX12 + OpenXR + WASAPI)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Show toolchain
+        shell: pwsh
+        run: |
+          cmake --version
+          echo "VCPKG_ROOT=$env:VCPKG_ROOT"
+
+      # vcpkg is pre-installed on windows-latest at $env:VCPKG_ROOT. Manifest
+      # mode (vcpkg.json) auto-installs openxr-loader during CMake configure.
+      - name: Configure (full native engine, vcpkg + MSVC)
+        shell: pwsh
+        run: >
+          cmake -S . -B build
+          -G "Visual Studio 17 2022" -A x64
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows
+
+      - name: Build (Release)
+        shell: pwsh
+        run: cmake --build build --config Release
+
+      - name: Internal C++ unit tests
+        shell: pwsh
+        run: ./build/Release/VREngine.exe
+
+      - name: E2E suite vs native binary (expect 17/17)
+        shell: pwsh
+        run: python Tests/run_tests.py --engine-path build/Release/VREngine.exe

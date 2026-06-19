@@ -95,8 +95,15 @@ if(WIN32)
         Source/Main.cpp
     )
 
+    # OpenXR loader (provided via vcpkg manifest, see vcpkg.json). Required to
+    # resolve the ~48 xr* call sites in Source/Platform/OpenXRManager.cpp.
+    find_package(OpenXR CONFIG REQUIRED)
+
     add_executable(VREngine ${SOURCES})
-    target_link_libraries(VREngine PRIVATE d3d12 dxgi d3dcompiler)
+    target_link_libraries(VREngine PRIVATE
+        d3d12 dxgi d3dcompiler
+        OpenXR::openxr_loader
+    )
 else()
     # -----------------------------------------------------------------------
     # Cross-platform core test runner. Builds the engine core together with the
