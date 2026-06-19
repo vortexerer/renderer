@@ -150,7 +150,7 @@ bool OpenXRManager::InitializeSession(ID3D12Device* device, ID3D12CommandQueue* 
         { m_TriggerAction, rightSelectClickPath }
     };
 
-    XrInteractionProfileSuggestedBindings suggestedBindings = { XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDINGS };
+    XrInteractionProfileSuggestedBinding suggestedBindings = { XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
     suggestedBindings.interactionProfile = interactionProfilePath;
     suggestedBindings.suggestedBindings = bindings.data();
     suggestedBindings.countSuggestedBindings = static_cast<uint32_t>(bindings.size());

@@ -1,6 +1,7 @@
 #include "DX12Renderer.h"
 #include "../Core/Logger.h"
 #include "ConstantBuffer.h"
+#include "../Math/Quaternion.h" // viewPose orientation -> rotation matrix
 #include <cmath>
 #include <cstring>
 

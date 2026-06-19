@@ -22,13 +22,13 @@ bool Win32Window::Initialize(HINSTANCE hInstance, int nCmdShow, int width, int h
     }
 
     RECT windowRect = { 0, 0, width, height };
-    AdjustWindowRect(&windowRect, WS_OVERWRITEWINDOW, FALSE);
+    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
     m_hWnd = CreateWindowExW(
         0,
         L"VREngineWindowClass",
         title,
-        WS_OVERWRITEWINDOW,
+        WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
         windowRect.right - windowRect.left,

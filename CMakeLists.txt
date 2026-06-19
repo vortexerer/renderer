@@ -13,6 +13,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Enable multi-processor compilation for MSVC
 if(MSVC)
     add_compile_options(/MP /W4 /WX)
+    # windows.h defines min()/max() macros that clobber std::min/std::max (used in
+    # e.g. AudioEngine.cpp). NOMINMAX disables them.
+    add_compile_definitions(NOMINMAX)
 endif()
 
 # Include directories
