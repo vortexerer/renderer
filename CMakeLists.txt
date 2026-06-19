@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 project(GameEngineDEV LANGUAGES CXX)
 
-# The full Windows engine targets C++26 (MSVC). The cross-platform core only
-# relies on features available in C++23, so fall back to 23 on toolchains/CMake
-# versions that do not yet advertise a C++26 dialect flag (e.g. GCC 13 + CMake 3.28).
-if(MSVC)
-    set(CMAKE_CXX_STANDARD 26)
-else()
-    set(CMAKE_CXX_STANDARD 23)
-endif()
+# The engine is written against C++23, which every supported toolchain (GCC 13+,
+# Clang 16+, MSVC v19.3x) implements. We deliberately do NOT force C++26: several
+# CMake + MSVC combinations on CI do not advertise a CXX26 dialect flag yet, which
+# makes try_compile checks (e.g. FindThreads, pulled in transitively by the OpenXR
+# package) fail before the engine is even built.
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
