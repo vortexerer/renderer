@@ -18,21 +18,22 @@ if(MSVC)
     add_compile_definitions(NOMINMAX)
 endif()
 
-# Include directories
-include_directories(Source)
-
 # Output directory for binary
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # ---------------------------------------------------------------------------
-# Platform-independent engine core.
-# These translation units carry no DirectX 12 / Win32 / OpenXR / WASAPI device
-# dependencies (the few that touch the OS are guarded with #ifdef _WIN32) and so
-# compile on any platform. They are exercised by the E2E test runner.
+# VREngineCore: the engine as a static library. Game code lives outside, in
+# Samples/, and links against this target. Everything under Source/ must stay
+# game-agnostic.
+#
+# The platform-independent portion (math, physics, audio DSP, glTF, UI, core)
+# builds everywhere; the native VR layer (DirectX 12 + OpenXR + WASAPI + Win32)
+# is appended on Windows only.
 # ---------------------------------------------------------------------------
-set(CORE_SOURCES
+set(ENGINE_SOURCES
     Source/Core/Component.h
     Source/Core/GameObject.h
+    Source/Core/IGame.h
     Source/Core/Timer.cpp
     Source/Core/Timer.h
     Source/Core/Logger.cpp
@@ -63,20 +64,10 @@ set(CORE_SOURCES
     Source/Asset/TextureLoader.h
     Source/UI/ImmediateUI.cpp
     Source/UI/ImmediateUI.h
-    Source/Game/TargetObject.cpp
-    Source/Game/TargetObject.h
-    Source/Game/TargetRotator.h
-    Source/Game/TargetRotator.cpp
-    Source/Game/GameWorld.cpp
-    Source/Game/GameWorld.h
 )
 
 if(WIN32)
-    # -----------------------------------------------------------------------
-    # Full VR engine executable (Windows only: DirectX 12 + OpenXR + WASAPI).
-    # -----------------------------------------------------------------------
-    set(SOURCES
-        ${CORE_SOURCES}
+    list(APPEND ENGINE_SOURCES
         Source/Platform/Win32Window.cpp
         Source/Platform/Win32Window.h
         Source/Platform/OpenXRManager.cpp
@@ -88,30 +79,53 @@ if(WIN32)
         Source/Renderer/DX12Renderer.h
         Source/UI/FontRenderer.cpp
         Source/UI/FontRenderer.h
-        Source/Game/PlayerController.cpp
-        Source/Game/PlayerController.h
         Source/Core/Engine.cpp
         Source/Core/Engine.h
-        Source/TestMain.cpp
-        Source/Main.cpp
     )
+endif()
 
+add_library(VREngineCore STATIC ${ENGINE_SOURCES})
+target_include_directories(VREngineCore PUBLIC Source)
+
+if(WIN32)
     # OpenXR loader (provided via vcpkg manifest, see vcpkg.json). Required to
     # resolve the ~48 xr* call sites in Source/Platform/OpenXRManager.cpp.
     find_package(OpenXR CONFIG REQUIRED)
-
-    add_executable(VREngine ${SOURCES})
-    target_link_libraries(VREngine PRIVATE
+    target_link_libraries(VREngineCore PUBLIC
         d3d12 dxgi d3dcompiler
         OpenXR::openxr_loader
     )
 else()
-    # -----------------------------------------------------------------------
-    # Cross-platform core test runner. Builds the engine core together with the
-    # CLI test harness (TestMain.cpp) so the E2E suite can validate the real
-    # C++ engine on Linux/macOS CI instead of the Python mock.
-    # -----------------------------------------------------------------------
     find_package(Threads REQUIRED)
-    add_executable(VREngine ${CORE_SOURCES} Source/TestMain.cpp)
-    target_link_libraries(VREngine PRIVATE Threads::Threads)
+    target_link_libraries(VREngineCore PUBLIC Threads::Threads)
 endif()
+
+# ---------------------------------------------------------------------------
+# Sample game: "Special Target Shooter". Demonstrates how a game links against
+# VREngineCore. The executable keeps the historical VREngine name because the
+# E2E runner (Tests/run_tests.py) and CI drive it by that name.
+#
+# TestMain.cpp provides the CLI test harness entry point (main) used by the E2E
+# suite on every platform; on Windows the VR app entry point (WinMain) is also
+# compiled in, but the console subsystem selects main.
+# ---------------------------------------------------------------------------
+set(SAMPLE_SOURCES
+    Samples/TargetShooter/GameWorld.cpp
+    Samples/TargetShooter/GameWorld.h
+    Samples/TargetShooter/TargetObject.cpp
+    Samples/TargetShooter/TargetObject.h
+    Samples/TargetShooter/TargetRotator.cpp
+    Samples/TargetShooter/TargetRotator.h
+    Samples/TargetShooter/TestMain.cpp
+)
+
+if(WIN32)
+    list(APPEND SAMPLE_SOURCES
+        Samples/TargetShooter/PlayerController.cpp
+        Samples/TargetShooter/PlayerController.h
+        Samples/TargetShooter/Main.cpp
+    )
+endif()
+
+add_executable(VREngine ${SAMPLE_SOURCES})
+target_link_libraries(VREngine PRIVATE VREngineCore)

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Core/Engine.h"
 #include "Core/Logger.h"
+#include "GameWorld.h"
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
@@ -13,8 +14,9 @@ int WINAPI WinMain(
 
     Logger::Info("Starting Game Engine...");
     
+    GameWorld game;
     Engine engine;
-    if (!engine.Initialize(hInstance, nCmdShow)) {
+    if (!engine.Initialize(hInstance, nCmdShow, &game)) {
         Logger::Error("Failed to initialize Game Engine.");
         return -1;
     }

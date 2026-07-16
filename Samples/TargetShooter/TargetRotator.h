@@ -1,6 +1,6 @@
 #pragma once
-#include "../Core/Component.h"
-#include "../Math/Quaternion.h"
+#include "Core/Component.h"
+#include "Math/Quaternion.h"
 
 // [사용자 직접 개발용 C++ 스크립트 컴포넌트 예제 - TargetRotator]
 // 유니티의 MonoBehaviour 스크립트 작성법과 100% 매치되는 구조입니다.

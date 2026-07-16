@@ -7,7 +7,8 @@ Engine::~Engine() {
     Shutdown();
 }
 
-bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow) {
+bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow, IGame* game) {
+    m_Game = game;
     Logger::Info("Engine: Initializing subsystems...");
 
     if (!m_Window.Initialize(hInstance, nCmdShow, 1024, 768, L"VR Target Shooter Game")) {
@@ -40,7 +41,10 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow) {
         return false;
     }
 
-    m_GameWorld.LoadLevel("Assets/Models/Level.gltf");
+    if (m_Game && !m_Game->OnStart()) {
+        Logger::Error("Engine: Game module failed to start.");
+        return false;
+    }
     Logger::Info("Engine: All subsystems initialized successfully.");
     return true;
 }
@@ -63,8 +67,11 @@ void Engine::Run() {
             double frameTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            // Update Controller Inputs & Player Controller
-            m_GameWorld.UpdateInput(&m_XRManager, frameState.predictedDisplayTime);
+            // Update Controller Inputs & Game Logic (via the injected game module)
+            if (m_Game) {
+                m_Game->OnUpdateInput(&m_XRManager, frameState.predictedDisplayTime);
+                m_Game->OnUpdate(frameTime);
+            }
 
             // Update Physics (Accumulator based 100Hz loop inside PhysicsEngine)
             m_Physics.Update(frameTime);
@@ -82,8 +89,9 @@ void Engine::Run() {
             m_XRManager.AcquireAndWaitSwapchainImage(RightEye, &imageIndexR);
 
             // Stereo rendering pass
+            static const std::vector<GameObject*> s_EmptyScene;
             m_Renderer.PreRender();
-            m_Renderer.RenderScene(views, m_GameWorld.GetGameObjects(),
+            m_Renderer.RenderScene(views, m_Game ? m_Game->GetGameObjects() : s_EmptyScene,
                                    imageIndexL, imageIndexR,
                                    m_XRManager.GetSwapchainImages(LeftEye)[imageIndexL],
                                    m_XRManager.GetSwapchainImages(RightEye)[imageIndexR],

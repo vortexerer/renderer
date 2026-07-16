@@ -1,13 +1,14 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "../Math/Vector3.h"
+#include "Math/Vector3.h"
+#include "Core/IGame.h"
 #include "TargetObject.h"
-#include "../Physics/PhysicsEngine.h"
-#include "../Audio/AudioEngine.h"
+#include "Physics/PhysicsEngine.h"
+#include "Audio/AudioEngine.h"
 #ifdef _WIN32
 // Provides OpenXRManager and XrTime for the VR runtime input hook below.
-#include "../Platform/OpenXRManager.h"
+#include "Platform/OpenXRManager.h"
 #endif
 
 struct GameEvent {
@@ -21,7 +22,7 @@ struct GameEvent {
     std::string type = "";
 };
 
-class GameWorld {
+class GameWorld : public IGame {
 public:
     GameWorld();
     ~GameWorld();
@@ -32,7 +33,19 @@ public:
     void UpdateInput(OpenXRManager* xrManager, XrTime predictedTime);
 #endif
     void UpdateLogic(double frameTime);
-    const std::vector<GameObject*>& GetGameObjects() const { return m_GameObjects; }
+
+    // IGame — 엔진 프레임 루프가 이 훅들을 통해 게임을 구동합니다.
+    bool OnStart() override {
+        LoadLevel("Assets/Models/Level.gltf");
+        return true;
+    }
+#ifdef _WIN32
+    void OnUpdateInput(OpenXRManager* xrManager, long long predictedDisplayTime) override {
+        UpdateInput(xrManager, static_cast<XrTime>(predictedDisplayTime));
+    }
+#endif
+    void OnUpdate(double frameTime) override { UpdateLogic(frameTime); }
+    const std::vector<GameObject*>& GetGameObjects() const override { return m_GameObjects; }
     int GetScore() const { return m_Score; }
     void ResetGame();
 

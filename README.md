@@ -73,7 +73,7 @@ cmake --build Build --config Release
 ```
 
 ### Linux / macOS (크로스플랫폼 코어 검증)
-플랫폼 종속 코드는 `#ifdef _WIN32`로 격리되어 있어, **렌더러/HMD가 없는 환경에서도 엔진 코어(수학·물리·공간오디오 DSP·에셋·UI 레이캐스트)를 실제 C++로 컴파일하여 E2E 수치 검증**을 수행할 수 있습니다. 이때 `CMakeLists.txt`는 코어 + CLI 테스트 하니스(`TestMain.cpp`)만으로 `VREngine` 테스트 러너를 빌드합니다.
+플랫폼 종속 코드는 `#ifdef _WIN32`로 격리되어 있어, **렌더러/HMD가 없는 환경에서도 엔진 코어(수학·물리·공간오디오 DSP·에셋·UI 레이캐스트)를 실제 C++로 컴파일하여 E2E 수치 검증**을 수행할 수 있습니다. 빌드는 엔진 정적 라이브러리(`VREngineCore`, `Source/`)와 이를 링크하는 샘플 게임(`Samples/TargetShooter/`)으로 나뉘며, 샘플의 CLI 테스트 하니스(`TestMain.cpp`)가 `VREngine` 테스트 러너 실행파일이 됩니다.
 
 ```bash
 cmake -B Build -S .

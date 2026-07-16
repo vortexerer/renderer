@@ -1,6 +1,6 @@
 #include "PlayerController.h"
 #include "GameWorld.h"
-#include "../Core/GameObject.h"
+#include "Core/GameObject.h"
 
 PlayerController::PlayerController(OpenXRManager* xrManager, GameWorld* world)
     : m_XRManager(xrManager), m_GameWorld(world) {}

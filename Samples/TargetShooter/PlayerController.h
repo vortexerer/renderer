@@ -1,6 +1,6 @@
 #pragma once
-#include "../Core/Component.h"
-#include "../Platform/OpenXRManager.h"
+#include "Core/Component.h"
+#include "Platform/OpenXRManager.h"
 
 // Forward declarations
 class GameWorld;

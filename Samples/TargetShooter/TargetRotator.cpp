@@ -1,5 +1,5 @@
 #include "TargetRotator.h"
-#include "../Core/GameObject.h"
+#include "Core/GameObject.h"
 #include <cmath>
 
 void TargetRotator::Start() {

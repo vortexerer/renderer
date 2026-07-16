@@ -1,9 +1,9 @@
 #include "GameWorld.h"
 #include <cmath>
 #include <algorithm>
-#include "../Core/Logger.h"
-#include "../Core/GameObject.h"
-#include "../Physics/GJK_EPA.h"
+#include "Core/Logger.h"
+#include "Core/GameObject.h"
+#include "Physics/GJK_EPA.h"
 
 GameWorld::GameWorld() : m_Score(0), m_CurrentTime(0.0) {
     m_Audio.Initialize();

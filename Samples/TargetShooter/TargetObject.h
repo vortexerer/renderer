@@ -1,7 +1,7 @@
 #pragma once
-#include "../Core/GameObject.h"
-#include "../Physics/RigidbodyComponent.h"
-#include "../Physics/Colliders.h"
+#include "Core/GameObject.h"
+#include "Physics/RigidbodyComponent.h"
+#include "Physics/Colliders.h"
 
 // [유니티 스타일 아키텍처 - Prefab / GameObject 상속 구현체]
 // 쌩 클래스 멤버로 데이터를 들고 있는 구조에서 벗어나,

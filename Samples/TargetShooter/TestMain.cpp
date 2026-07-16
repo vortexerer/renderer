@@ -24,7 +24,7 @@
 #include "Audio/HRTFFilter.h"
 #include "Asset/AssetLoader.h"
 #include "UI/ImmediateUI.h"
-#include "Game/GameWorld.h"
+#include "GameWorld.h"
 
 // Set console mode for virtual terminal sequences (colors)
 void EnableVirtualTerminalProcessing() {

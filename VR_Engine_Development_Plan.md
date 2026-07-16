@@ -18,11 +18,11 @@
 
 ```text
 GameEngineDEV/
-├── CMakeLists.txt          # 전체 빌드 설정
-├── Source/
-│   ├── Main.cpp            # 엔진 진입점 및 Win32 메인 메시지 루프
+├── CMakeLists.txt          # 전체 빌드 설정 (VREngineCore 라이브러리 + 샘플 앱)
+├── Source/                 # 엔진 코어 정적 라이브러리 (VREngineCore, 게임 비종속)
 │   ├── Core/               # 엔진의 핵심 기반 시스템 (시간 및 로그)
 │   │   ├── Engine.cpp/h    # 전체 서브시스템(물리, 렌더러 등) 초기화 및 동기화 관리
+│   │   ├── IGame.h         # 엔진-게임 경계 인터페이스 (게임 모듈 주입점)
 │   │   ├── Timer.cpp/h     # QueryPerformanceCounter 기반 정밀 델타 타임 측정
 │   │   └── Logger.cpp/h    # std::source_location 기반 비동기 스레드 안전 파일 로깅
 │   ├── Math/               # 삼차원 공간 변환 대수학 (교과 기하 수학 연계)
@@ -48,13 +48,17 @@ GameEngineDEV/
 │   ├── Asset/              # 에셋 파이프라인
 │   │   ├── AssetLoader.cpp/h   # glTF 2.0 JSON 파서 및 바이너리 언패킹 수동 디코더
 │   │   └── TextureLoader.cpp/h # BMP 수동 파일 디코더
-│   ├── UI/                 # 자체 Immediate UI 시스템
-│   │   ├── ImmediateUI.cpp/h  # 텍스트, 버튼 드로우 리스트 및 오프스크린 렌더 타깃 매핑
-│   │   └── FontRenderer.cpp/h # SDF 기반 폰트 셰이더 및 텍스처 아틀라스 변환
-│   └── Game/               # 엔진 검증용 데모 콘텐츠
-│       ├── GameWorld.cpp/h    # Blender 레벨 씬 로드 및 노드 파싱 관리
+│   └── UI/                 # 자체 Immediate UI 시스템
+│       ├── ImmediateUI.cpp/h  # 텍스트, 버튼 드로우 리스트 및 오프스크린 렌더 타깃 매핑
+│       └── FontRenderer.cpp/h # SDF 기반 폰트 셰이더 및 텍스처 아틀라스 변환
+├── Samples/
+│   └── TargetShooter/      # VREngineCore를 링크하는 샘플 게임 (엔진 검증용 데모)
+│       ├── Main.cpp           # VR 앱 진입점 (WinMain) — GameWorld를 엔진에 주입
+│       ├── TestMain.cpp       # E2E CLI 테스트 하니스 진입점 (main)
+│       ├── GameWorld.cpp/h    # IGame 구현체: 레벨 씬 로드 및 노드 파싱 관리
 │       ├── PlayerController.cpp/h # OpenXR 조준/발사 입력 매핑 스크립트
-│       └── TargetObject.cpp/h # 타깃 충돌 이벤트 감지 및 스코어 갱신 스크립트
+│       ├── TargetObject.cpp/h # 타깃 충돌 이벤트 감지 및 스코어 갱신 스크립트
+│       └── TargetRotator.cpp/h # 타깃 회전 연출 컴포넌트
 └── Shaders/                # HLSL 셰이더 코드
 ```
 

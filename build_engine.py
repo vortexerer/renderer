@@ -74,7 +74,7 @@ def main():
         
         # Build command using cl.exe inside vcvars environment
         source_files = [
-            r"Source\TestMain.cpp",
+            # Engine (VREngineCore sources)
             r"Source\Core\Timer.cpp",
             r"Source\Core\Logger.cpp",
             r"Source\Core\Engine.cpp",
@@ -83,27 +83,29 @@ def main():
             r"Source\Platform\Win32Window.cpp",
             r"Source\Platform\OpenXRManager.cpp",
             r"Source\Renderer\PipelineState.cpp",
-            r"Source/Renderer/DX12Renderer.cpp",
+            r"Source\Renderer\DX12Renderer.cpp",
             r"Source\Audio\HRTFFilter.cpp",
             r"Source\Audio\AudioSource.cpp",
             r"Source\Audio\AudioEngine.cpp",
             r"Source\Physics\Rigidbody.cpp",
             r"Source\Physics\Colliders.cpp",
             r"Source\Physics\GJK_EPA.cpp",
-            r"Source\Physics/PhysicsEngine.cpp",
+            r"Source\Physics\PhysicsEngine.cpp",
             r"Source\Asset\AssetLoader.cpp",
             r"Source\Asset\TextureLoader.cpp",
             r"Source\UI\FontRenderer.cpp",
             r"Source\UI\ImmediateUI.cpp",
-            r"Source\Game\TargetObject.cpp",
-            r"Source\Game\TargetRotator.cpp",
-            r"Source\Game\PlayerController.cpp",
-            r"Source\Game\GameWorld.cpp",
-            r"Source\Main.cpp"
+            # Sample game (Samples/TargetShooter)
+            r"Samples\TargetShooter\TargetObject.cpp",
+            r"Samples\TargetShooter\TargetRotator.cpp",
+            r"Samples\TargetShooter\PlayerController.cpp",
+            r"Samples\TargetShooter\GameWorld.cpp",
+            r"Samples\TargetShooter\TestMain.cpp",
+            r"Samples\TargetShooter\Main.cpp"
         ]
-        
+
         sources_str = " ".join(source_files)
-        compile_cmd = f'cmd.exe /c "call \\"{vcvars_path}\\" x64 && cl.exe /EHsc /std:c++latest /O2 {sources_str} d3d12.lib dxgi.lib d3dcompiler.lib /Fe:VREngine.exe"'
+        compile_cmd = f'cmd.exe /c "call \\"{vcvars_path}\\" x64 && cl.exe /EHsc /std:c++latest /O2 /ISource {sources_str} d3d12.lib dxgi.lib d3dcompiler.lib /Fe:VREngine.exe"'
         print(f"Running compilation command:\n{compile_cmd}")
         
         res = subprocess.run(compile_cmd, shell=True)
